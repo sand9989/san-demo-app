@@ -1,73 +1,43 @@
-pipeline{
-    
-    agent any 
-    
-    stages {
-        
-        stage('Git Checkout'){
-            
-            steps{
-                
-                script{
-                    
-                    git branch: 'main', url: 'https://github.com/vikash-kumar01/mrdevops_javaapplication.git'
-                }
-            }
+pipeline {
+    agent {
+        node {
+            label 'slave-node'
         }
-        stage('UNIT testing'){
-            
-            steps{
-                
-                script{
-                    
-                    sh 'mvn test'
-                }
-            }
+    }
+
+tools {
+    maven 'maven3'
+}
+
+options{
+    buildDiscarder(logRotator(numToKeepStr:'3'))
+    retry(3)
+    timestamps()
+}
+
+parameters{
+    string(name: "branch", defaultValue: "main", description: "select the branch")
+    choice(name: "Environment", choices: "dev\ntest\nprod", description: "select the environment")
+}
+
+stages {
+    stage("pull code"){
+        steps {
+            git branch: '${params.branch}', credentialsId: 'git_pass', url: 'https://github.com/sand9989/san-demo-app.git'
         }
-        stage('Integration testing'){
-            
-            steps{
-                
-                script{
-                    
-                    sh 'mvn verify -DskipUnitTests'
-                }
-            }
+    }
+
+    stage("maven deploy"){
+        // when { ${params.Environment} == "dev"}
+        steps{
+            sh "mvn clean deploy -Dmaven.test.skip=true"
         }
-        stage('Maven build'){
-            
-            steps{
-                
-                script{
-                    
-                    sh 'mvn clean install'
-                }
-            }
+    }
+
+    stage("maven test report"){
+        steps{
+            sh "mvn surefire-report:report"
         }
-        stage('Static code analysis'){
-            
-            steps{
-                
-                script{
-                    
-                    withSonarQubeEnv(credentialsId: 'sonar-api') {
-                        
-                        sh 'mvn clean package sonar:sonar'
-                    }
-                   }
-                    
-                }
-            }
-            stage('Quality Gate Status'){
-                
-                steps{
-                    
-                    script{
-                        
-                        waitForQualityGate abortPipeline: false, credentialsId: 'sonar-api'
-                    }
-                }
-            }
-        }
-        
+    }
+}
 }
