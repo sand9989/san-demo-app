@@ -30,10 +30,10 @@ stages {
         }
     }
 
-    stage("maven test report"){
-        steps{
-            sh "mvn surefire-report:report"
-        }
-    }
+    // stage("maven test report"){
+    //     steps{
+    //         sh "mvn surefire-report:report"
+    //     }
+    // }
 }
 }
