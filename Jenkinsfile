@@ -26,7 +26,7 @@ stages {
     stage("maven deploy"){
         // when { ${params.Environment} == "dev"}
         steps{
-            sh "mvn clean deploy"
+            sh "mvn clean"
         }
     }
 
