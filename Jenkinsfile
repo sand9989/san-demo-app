@@ -23,7 +23,7 @@ parameters{
 stages {
     stage("pull code"){
         steps {
-            git branch: '${params.branch}', url: 'https://github.com/sand9989/san-demo-app.git'
+            /usr/bin/git branch: '${params.branch}', credentialsId: 'git_pass', url: 'https://github.com/sand9989/san-demo-app.git'
         }
     }
 
